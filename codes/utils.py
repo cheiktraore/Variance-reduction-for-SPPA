@@ -79,21 +79,20 @@ def prox_logit(x, gamma):
     This code was taken from http://proximity-operator.net
     """
     limit = 5e2
-    w = np.zeros(x.shape)
+    size_x = x.size
+    w = np.zeros(size_x)
     ex = np.exp(x)
     z = gamma*ex
-    # z = np.multiply(gamma, ex)
     
     # INITIALIZATION
-    approx = np.multiply(gamma, (1 - np.exp(gamma-x)))
+    approx = gamma * (1 - np.exp(gamma-x))
     w[z>1] = approx[z>1]
     
     # RUN
-    max_iter = 40;
-    test_end = np.zeros(x.shape)
+    max_iter = 20;
+    test_end = np.zeros(size_x)
     prec = 1e-8
     epsilon = 1e-20
-    n = w.size
     
     for it in range(max_iter):
         e = np.exp(w)
@@ -101,22 +100,19 @@ def prox_logit(x, gamma):
         v = e*(1 + w) + ex
         u = e*(2 + w)
         w_new = w -  y/( v -  y * u/(2*v) )
-        # test = (np.abs(w_new-w)/np.abs(w)  < prec) & (test_end == 0)
-        test = (np.abs(w_new-w)/(epsilon + np.abs(w))  < prec) & (test_end == 0)
-        tmp = test_end[test]
-        tmp[:] = 1
-        test_end[test] = tmp
-        # test_2 = (np.abs(w_new-w)/np.abs(w) >= prec) & (test_end == 0)
-        test_2 = (np.abs(w_new-w)/(epsilon + np.abs(w)) >= prec) & (test_end == 0)
-        idx_update = np.where(test_2)
+        test = (np.abs(w_new-w)/(epsilon + np.abs(w))  < prec)
+        tmp = (test_end == 0)
+        test_end[np.logical_and(test, tmp)] = 1
+        idx_update = np.logical_and(np.logical_not(test), tmp)
         w[idx_update] = w_new[idx_update] #the rest stays constant !
-        if(np.sum(test_end) == n): # stop !
+        if(np.sum(test_end) == size_x): # stop !
             break
-            
     p = x - w
     
     # ASYMPTOTIC DVP
-    p[x>limit] = x[x>limit] - approx[x>limit]
+    test = (x>limit)
+    p[test] = x[test] - approx[test]
+    
     return p
 
 @njit
