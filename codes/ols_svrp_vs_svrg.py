@@ -80,7 +80,7 @@ def run_all_for_iter_to_accuracy_plot(n, d, mu, mu2, cond_n, s, x_0, coef_step, 
     # print("Hi Cheik")
     # plot_acc(dict_data, mu_, sigma, cond_n, n_steps-1, coeffs, accuracy, excepted=except_,
     plot_acc(dict_data, mu_, sigma, L / mu_, len(stepsizes), stepsizes, accuracy, excepted=except_,
-step_rule=f"ols_svrpVSsvrg_acc_{acc}_mu_{mu}_cond_{int(cond_n)}_n_{n}_blocks_{d}_in_{inner_iters}.png", root="./plots/svrpVSsvrg/",
+step_rule=f"ols_svrpVSsvrg_acc_{acc}_mu_{mu}_cond_{int(cond_n)}_n_{n}_blocks_{d}_in_{inner_iters}.png", root="../plots/svrpVSsvrg/",
              save=save, svrp=True, n=n, d=d)
 
     return dict_data

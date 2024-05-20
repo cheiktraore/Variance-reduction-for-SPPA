@@ -75,7 +75,7 @@ def run_all_for_iter_to_accuracy_plot(n, d, mu, cond_n, s, x_0, coef_step, n_ste
     # print("Hi Cheik")
     # plot_acc(dict_data, mu_, sigma, cond_n, n_steps-1, coeffs, accuracy, excepted=except_,
     plot_acc(dict_data, mu_, sigma, cond_n, len(stepsizes), stepsizes, accuracy, excepted=except_,
-step_rule=f"logistic_sapaVSsaga_acc_{acc}_mu_{mu}_cond_{int(cond_n)}_n_{n}_blocks_{d}.png", root="./plots/sapaVSsaga/",
+step_rule=f"logistic_sapaVSsaga_acc_{acc}_mu_{mu}_cond_{int(cond_n)}_n_{n}_blocks_{d}.png", root="../plots/sapaVSsaga/",
              save=save, svrp=False, n=n, d=d, plot=plot,log=True)
 
     return dict_data

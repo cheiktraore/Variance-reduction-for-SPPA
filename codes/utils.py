@@ -75,6 +75,9 @@ def make_data_class(dim_row, dim_col, cond_numb_A=1, prob_noise=0, mu=1, control
     
 @njit
 def prox_logit(x, gamma):
+    """
+    This code was taken from http://proximity-operator.net
+    """
     limit = 5e2
     w = np.zeros(x.shape)
     ex = np.exp(x)
@@ -89,6 +92,8 @@ def prox_logit(x, gamma):
     max_iter = 40;
     test_end = np.zeros(x.shape)
     prec = 1e-8
+    epsilon = 1e-20
+    n = w.size
     
     for it in range(max_iter):
         e = np.exp(w)
@@ -96,14 +101,16 @@ def prox_logit(x, gamma):
         v = e*(1 + w) + ex
         u = e*(2 + w)
         w_new = w -  y/( v -  y * u/(2*v) )
-        test = (np.abs(w_new-w)/np.abs(w)  < prec) & (test_end == 0)
+        # test = (np.abs(w_new-w)/np.abs(w)  < prec) & (test_end == 0)
+        test = (np.abs(w_new-w)/(epsilon + np.abs(w))  < prec) & (test_end == 0)
         tmp = test_end[test]
         tmp[:] = 1
         test_end[test] = tmp
-        test_2 = (np.abs(w_new-w)/np.abs(w) >= prec) & (test_end == 0)
+        # test_2 = (np.abs(w_new-w)/np.abs(w) >= prec) & (test_end == 0)
+        test_2 = (np.abs(w_new-w)/(epsilon + np.abs(w)) >= prec) & (test_end == 0)
         idx_update = np.where(test_2)
         w[idx_update] = w_new[idx_update] #the rest stays constant !
-        if(np.sum(test_end) == w.size): # stop !
+        if(np.sum(test_end) == n): # stop !
             break
             
     p = x - w

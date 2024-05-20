@@ -85,7 +85,7 @@ def run_all_for_iter_to_accuracy_plot(n, d, mu, cond_n, s, x_0, coef_step, n_ste
     # print("Hi Cheik")
     # plot_acc(dict_data, mu_, sigma, cond_n, n_steps-1, coeffs, accuracy, excepted=except_,
     plot_acc(dict_data, mu_, sigma, L / mu_, len(stepsizes), stepsizes, accuracy, excepted=except_,
-step_rule=f"logistic_svrpVSsvrg_acc_{acc}_mu_{mu}_cond_{int(cond_n)}_n_{n}_blocks_{d}_in_{inner_iters}.png", root="./plots/svrpVSsvrg/",
+step_rule=f"logistic_svrpVSsvrg_acc_{acc}_mu_{mu}_cond_{int(cond_n)}_n_{n}_blocks_{d}_in_{inner_iters}.png", root="../plots/svrpVSsvrg/",
              save=save, svrp=True, n=n, d=d, plot=plot, log=True)
 
     return dict_data
@@ -106,7 +106,6 @@ if __name__ == "__main__":
     
     
     n_exp = 10
-    n_pb = 1
     
     accuracy = 1e-2
 
@@ -114,17 +113,16 @@ if __name__ == "__main__":
     mu = 0.
     n_steps = 51
 
-    else:
-        n = 2000
-        print(n)
-        for d in [500, 1000, 1500, 2000]:
-        # for n in [1000]:
-            # np.random.seed(42)
-            # n_steps = 101
-            x_0 = np.zeros(d)
-            dict_steps = run_all_for_iter_to_accuracy_plot(n, d, mu, cond_n, max_iter, x_0, 
-                                                           coef_step, n_steps, mean=0., 
-                                                           std_dev=1., save=True, acc=accuracy,
-                                                           inner_iters=inner_iters, 
-                                                           numb_exp=n_exp, numb_pb=n_pb,
-                                                           last_it=True, svrp=svrp)
+    n = 2000
+    print(n)
+    for d in [500, 1000, 1500, 2000]:
+    # for n in [1000]:
+        # np.random.seed(42)
+        # n_steps = 101
+        x_0 = np.zeros(d)
+        dict_steps = run_all_for_iter_to_accuracy_plot(n, d, mu, cond_n, max_iter, x_0, 
+                                                       coef_step, n_steps, mean=0., 
+                                                       std_dev=1., save=True, acc=accuracy,
+                                                       inner_iters=inner_iters, 
+                                                       numb_exp=n_exp,
+                                                       last_it=True)
