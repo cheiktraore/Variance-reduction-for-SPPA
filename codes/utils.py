@@ -91,16 +91,16 @@ def prox_logit(x, gamma):
     # RUN
     max_iter = 20;
     test_end = np.zeros(size_x)
-    prec = 1e-8
+    precision = 1e-8
     epsilon = 1e-20
     
-    for it in range(max_iter):
+    for _ in range(max_iter):
         e = np.exp(w)
         y = w*e + ex*w - z
         v = e*(1 + w) + ex
         u = e*(2 + w)
         w_new = w -  y/( v -  y * u/(2*v) )
-        test = (np.abs(w_new-w)/(epsilon + np.abs(w))  < prec)
+        test = (np.abs(w_new-w)/(epsilon + np.abs(w))  < precision)
         tmp = (test_end == 0)
         test_end[np.logical_and(test, tmp)] = 1
         idx_update = np.logical_and(np.logical_not(test), tmp)
