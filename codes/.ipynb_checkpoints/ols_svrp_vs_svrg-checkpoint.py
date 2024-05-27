@@ -41,41 +41,47 @@ def run_all_for_iter_to_accuracy_plot(n, d, mu, mu2, cond_n, s, x_0, coef_step, 
         total_sppa = s * (n + inner_iter + 1)
     
         if not exp:
-            bounds_dict = {"1000": (0.01, 0.07), "5000": (0.01, 0.31), "10000": (0.01, 0.36)}
-            low_bound, upp_bound = bounds_dict[str(n)]
-            stepsizes = (upp_bound + low_bound) - np.geomspace(upp_bound,low_bound,n_steps)
-            #################################
-            # step = 1./ (4*L)
-            # tmp = np.linspace(0,18,n_steps)
-            # tmp = tmp[tmp!=0]
-            # stepsizes = tmp * step
+            # bounds_dict = {"500": (0.01, 1.5), "1000": (0.05, 1.1), "1500": (0.05, 0.85), "2000": (0.05, 0.7),\
+            #                "3000": (0.05, 0.76), "4000": (0.05, 0.7)}
+            # low_bound, upp_bound = bounds_dict[str(d)]
+            # stepsizes = (upp_bound + low_bound) - np.geomspace(upp_bound,low_bound,n_steps)
+            ##################################
+            step = 1./ (4*L)
+            tmp = np.linspace(0,30,n_steps)
+            tmp = tmp[tmp!=0]
+            upper_bound = 1./ (2*(2*L-mu_))
+            stepsizes = tmp * step
+            stepsizes = stepsizes[stepsizes!=upper_bound]
         
         for index, step in enumerate(stepsizes):
- 
-            tmp_sapa = sapa_ols_acc(A, b, step, x_0, total_elt_op, f_star = f_star, 
-                                     accuracy=acc, rnd_seed=3)
-            tmp_saga = saga_ols_acc(A, b, step, x_0, total_elt_op, f_star = f_star,
-                                     accuracy=acc, rnd_seed=3)
+
+            tmp_svrg = svrg_ols_acc(A, b, step, x_0, s, f_star = f_star, 
+                                  inner_iter=inner_iters, 
+                                  accuracy=acc, rnd_seed=3, max_it=max_it)
+
+            tmp_svrp = svrp_ols_acc(A, b, step, x_0, s, inner_iter=inner_iters, f_star = f_star
+                                  , accuracy=acc, rnd_seed=3, max_it=max_it)
             try:
-                # print(f"I am doing sapa now for step = {step}")
-                dict_data[step]["SAPA"][0] += tmp_sapa / numb_exp
-                dict_data[step]["SAPA"][1] = max(dict_data[step]["SAPA"][1], tmp_sapa)
-                dict_data[step]["SAPA"][2] = min(dict_data[step]["SAPA"][2], tmp_sapa)
+                # print(f"I am doing svrg now for step = {step}")
+                dict_data[step]["SVRP"][0] += tmp_svrp / numb_exp
+                dict_data[step]["SVRP"][1] = max(dict_data[step]["SVRP"][1], tmp_svrp)
+                dict_data[step]["SVRP"][2] = min(dict_data[step]["SVRP"][2], tmp_svrp)
 
-                # print(f"I am doing saga now for step = {step}")
-                dict_data[step]["SAGA"][0] += tmp_saga / numb_exp
-                dict_data[step]["SAGA"][1] = max(dict_data[step]["SAGA"][1], tmp_saga)
-                dict_data[step]["SAGA"][2] = min(dict_data[step]["SAGA"][2], tmp_saga)
+                # print(f"I am doing svrp now for step = {step}")
+                dict_data[step]["SVRG"][0] += tmp_svrg / numb_exp
+                dict_data[step]["SVRG"][1] = max(dict_data[step]["SVRG"][1], tmp_svrg)
+                dict_data[step]["SVRG"][2] = min(dict_data[step]["SVRG"][2], tmp_svrg)
             except:
-                dict_data[step] = {"SAPA": [tmp_sapa / numb_exp, tmp_sapa, tmp_sapa], "SAGA": [tmp_saga / numb_exp, tmp_saga, tmp_saga]}
+                dict_data[step] = {"SVRP": [tmp_svrp  / numb_exp, tmp_svrp, tmp_svrp], "SVRG": [tmp_svrg / numb_exp, tmp_svrg, tmp_svrg]}                    
 
-
+    
+    accuracy = acc
     except_ = []
     # print("Hi Cheik")
     # plot_acc(dict_data, mu_, sigma, cond_n, n_steps-1, coeffs, accuracy, excepted=except_,
-    plot_acc(dict_data, mu_, sigma, cond_n, len(stepsizes), stepsizes, accuracy, excepted=except_,
-step_rule=f"ols_sapaVSsaga_acc_{acc}_mu_{mu}_cond_{int(cond_n)}_n_{n}_blocks_{d}.png", root="../plots/sapaVSsaga/",
-             save=save, svrp=False, n=n, d=d)s
+    plot_acc(dict_data, mu_, sigma, L / mu_, len(stepsizes), stepsizes, accuracy, excepted=except_,
+step_rule=f"ols_svrpVSsvrg_acc_{acc}_mu_{mu}_cond_{int(cond_n)}_n_{n}_blocks_{d}_in_{inner_iters}.png", root="../plots/svrpVSsvrg/",
+             save=save, svrp=True, n=n, d=d)
 
     return dict_data
 
@@ -94,22 +100,23 @@ if __name__ == "__main__":
     coef_step = 6.
     
     n_exp = 10
+    
+    accuracy = 1e-2
 
     cond_n = 10.
     mu = 0.
     mu2 = 0.1
     d = 500
-    accuracy = 1e-2
-
+    
     n_steps = 51
 
-    x_0 = np.zeros(d)
-    for n in [1000, 5000, 10000]:
-    # for n in [10000]:
-        # np.random.seed(42)
+    n = 2000
+    for d in [1000, 1500, 2000, 3000]:
+    # for d in [500]:
+        x_0 = np.zeros(d)
         dict_steps = run_all_for_iter_to_accuracy_plot(n, d, mu, mu2, cond_n, max_iter, x_0, 
                                                        coef_step, n_steps, mean=0., 
                                                        std_dev=1., save=True, acc=accuracy,
-                                                       inner_iters=1, 
-                                                       numb_exp=n_exp,
-                                                       last_it=True)
+                                                       inner_iters=inner_iters, 
+                                                       numb_exp=n_exp, numb_pb=n_pb,
+                                                       last_it=True, max_it=60000)
